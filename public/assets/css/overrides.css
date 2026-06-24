@@ -1,0 +1,88 @@
+/* Header navigation visibility overrides */
+#site-header.site-header {
+  background: #ffffff !important;
+  position: relative !important;
+  z-index: 9999 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+#site-header.site-header,
+#site-header.site-header a,
+#site-header.site-header .menu-item-text,
+#site-header.site-header .cart-count,
+#site-header.site-header i {
+  color: #111 !important;
+}
+#site-header .site-logo img {
+  filter: invert(1) brightness(0);
+}
+#site-header .header-desktop,
+#site-header .header-wrapper,
+#site-header .site-navigation,
+#site-header #main-navigation,
+#site-header #menu-main-menu {
+  overflow: visible !important;
+}
+#site-header #menu-main-menu {
+  display: flex !important;
+  flex-wrap: wrap;
+  justify-content: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+#site-header #menu-main-menu > li {
+  position: relative;
+  padding: 20px 16px;
+}
+#site-header #menu-main-menu > li > a {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+#site-header #menu-main-menu .sub-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  background: #fff;
+  list-style: none;
+  margin: 0;
+  padding: 12px 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: all 0.2s ease;
+  z-index: 10000;
+}
+#site-header #menu-main-menu .sub-menu .sub-menu {
+  top: 0;
+  left: 100%;
+}
+#site-header #menu-main-menu > li:hover > .sub-menu,
+#site-header #menu-main-menu .sub-menu li:hover > .sub-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+#site-header #menu-main-menu .sub-menu li {
+  padding: 6px 20px;
+  white-space: nowrap;
+}
+#site-header #menu-main-menu .sub-menu li a {
+  font-size: 13px;
+  color: #333 !important;
+}
+#site-header #menu-main-menu .sub-menu li a:hover {
+  color: #cb8161 !important;
+}
+#site-header .header-mobile { display: none; }
+@media (max-width: 991px) {
+  #site-header .header-desktop { display: none; }
+  #site-header .header-mobile { display: block; }
+}
+/* Dropdown for mini cart */
+#site-header .mojuri-topcart .dropdown-menu { z-index: 10001; }
