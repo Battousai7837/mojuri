@@ -110,6 +110,10 @@ function config(useClientKey = false) {
   return { url, key };
 }
 
+function storageBucket() {
+  return process.env.SUPABASE_STORAGE_BUCKET || 'mojuri-uploads';
+}
+
 async function request<T>(path: string, options: RequestInit, useClientKey = false): Promise<T> {
   const { url, key } = config(useClientKey);
   const response = await fetch(`${url}/auth/v1${path}`, {
@@ -150,6 +154,66 @@ async function tableRequest<T>(table: string, query: string, options: RequestIni
     throw new SupabaseApiError(String(details?.message || details?.details || 'Supabase database request failed'), response.status);
   }
   return data as T;
+}
+
+async function storageRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const { url, key } = config();
+  const response = await fetch(`${url}/storage/v1${path}`, {
+    ...options,
+    cache: 'no-store',
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      ...options.headers,
+    },
+  });
+  const text = await response.text();
+  const data = text ? JSON.parse(text) as T | Record<string, unknown> : null;
+  if (!response.ok) {
+    const details = data as Record<string, unknown> | null;
+    throw new SupabaseApiError(String(details?.message || details?.error || 'Supabase storage request failed'), response.status);
+  }
+  return data as T;
+}
+
+async function ensurePublicStorageBucket(bucket: string) {
+  try {
+    await storageRequest(`/bucket/${encodeURIComponent(bucket)}`, { method: 'GET' });
+  } catch (error) {
+    const missingBucket = error instanceof SupabaseApiError
+      && (error.status === 404 || error.message.toLowerCase().includes('bucket not found'));
+    if (!missingBucket) throw error;
+    await storageRequest('/bucket', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: bucket,
+        name: bucket,
+        public: true,
+        file_size_limit: 5 * 1024 * 1024,
+        allowed_mime_types: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'],
+      }),
+    });
+  }
+}
+
+export async function uploadPublicImage(file: File, folder = 'uploads') {
+  const bucket = storageBucket();
+  await ensurePublicStorageBucket(bucket);
+  const extension = file.name.split('.').pop()?.replace(/[^a-z0-9]/gi, '').toLowerCase() || 'jpg';
+  const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${extension}`;
+  const cleanFolder = folder.replace(/[^a-z0-9/_-]/gi, '').replace(/^\/+|\/+$/g, '') || 'uploads';
+  const objectPath = `${cleanFolder}/${filename}`;
+  await storageRequest(`/object/${encodeURIComponent(bucket)}/${objectPath.split('/').map(encodeURIComponent).join('/')}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': file.type || 'application/octet-stream',
+      'x-upsert': 'false',
+    },
+    body: Buffer.from(await file.arrayBuffer()),
+  });
+  const { url } = config();
+  return `${url}/storage/v1/object/public/${encodeURIComponent(bucket)}/${objectPath.split('/').map(encodeURIComponent).join('/')}`;
 }
 
 function unwrapUser(data: SupabaseUser | { user: SupabaseUser }): SupabaseUser {

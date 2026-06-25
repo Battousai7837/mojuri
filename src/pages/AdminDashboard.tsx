@@ -285,6 +285,7 @@ export default function AdminDashboard() {
   async function upload(file: File, target: "blog" | "product" = "blog") {
     const data = new FormData();
     data.append("file", file);
+    data.append("folder", target === "product" ? "products" : "blogs");
     const result = await api<{ url: string }>("/upload", {
       method: "POST",
       body: data,
