@@ -38,6 +38,11 @@ const CSS_FILES = [
 let cssInjected = false;
 let vendorPromise: Promise<void> | null = null;
 
+export function removeLegacyPageCss() {
+  document.querySelectorAll('link[data-mojuri-legacy-css="true"]').forEach(link => link.remove());
+  cssInjected = false;
+}
+
 function ensureCss() {
   if (cssInjected) return;
   cssInjected = true;
@@ -45,12 +50,14 @@ function ensureCss() {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = href;
+    link.dataset.mojuriLegacyCss = 'true';
     document.head.appendChild(link);
   }
   // Google fonts
   const f1 = document.createElement('link');
   f1.rel = 'stylesheet';
   f1.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700&family=Lato:wght@300;400;700;900&display=swap';
+  f1.dataset.mojuriLegacyCss = 'true';
   document.head.appendChild(f1);
 }
 
@@ -125,6 +132,7 @@ export function usePageScripts(ref: RefObject<HTMLDivElement | null>, title: str
     return () => {
       cancelled = true;
       pageRoot?.removeEventListener('click', handler);
+      removeLegacyPageCss();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

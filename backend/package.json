@@ -12,7 +12,8 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
-    "seed:admin": "tsx --env-file=.env.local scripts/seed-admin.ts"
+    "seed:admin": "tsx --env-file=.env.local scripts/seed-admin.ts",
+    "seed:supabase-admin": "tsx --env-file=.env.local scripts/seed-supabase-admin.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.2",

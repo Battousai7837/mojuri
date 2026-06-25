@@ -1,4 +1,4 @@
-export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
+export const API_URL = import.meta.env.VITE_API_URL ?? '/api';
 
 export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('mojuri_admin_token');

@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDb } from '@/lib/db';
 import { apiError } from '@/lib/http';
-import { Order } from '@/models/Order';
+import { findPublicOrder } from '@/lib/supabase';
 
 export async function GET(request: NextRequest) {
   try {
-    await connectDb(); const code = request.nextUrl.searchParams.get('code'); const email = request.nextUrl.searchParams.get('email');
+    const code = request.nextUrl.searchParams.get('code');
+    const email = request.nextUrl.searchParams.get('email');
     if (!code || !email) return NextResponse.json({ message: 'Vui lòng nhập mã đơn và email' }, { status: 400 });
-    const order = await Order.findOne({ code: code.toUpperCase(), 'customer.email': email.toLowerCase() });
+    const order = await findPublicOrder(code, email);
     return order ? NextResponse.json(order) : NextResponse.json({ message: 'Không tìm thấy đơn hàng' }, { status: 404 });
-  } catch (error) { return apiError(error); }
+  } catch (error) {
+    return apiError(error);
+  }
 }

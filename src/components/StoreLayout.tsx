@@ -3,6 +3,7 @@ import type { FormEvent, ReactNode } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../store/CartContext';
 import { useWishlistStore } from '../store/wishlistStore';
+import { removeLegacyPageCss } from '../usePageScripts';
 import './client.css';
 
 function Icon({ name }: { name: 'search' | 'user' | 'heart' | 'bag' | 'menu' | 'close' }) {
@@ -25,6 +26,10 @@ export default function StoreLayout({ children }: { children: ReactNode }) {
   const [mobileSubmenu, setMobileSubmenu] = useState<'home' | 'shop' | 'blog' | 'pages' | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+
+  useEffect(() => {
+    removeLegacyPageCss();
+  }, []);
 
   useEffect(() => {
     let timer = 0;
